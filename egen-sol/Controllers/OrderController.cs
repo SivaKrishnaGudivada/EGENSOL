@@ -43,7 +43,7 @@ namespace egen_sol.Controllers
         [HttpPut("{id}")] // default route to post creates a resource
         public IActionResult CancelOrder(Guid id)
         {
-            if (_orderService.CancelOrder(id)) return NoContent();
+            if (_orderService.CancelOrder(id)) return NoContent();  
 
             return BadRequest();
         }

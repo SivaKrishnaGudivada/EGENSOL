@@ -1,5 +1,4 @@
 ﻿using System;
-using System;
 using System.Collections.Generic;
 using Massive.SqlServer;
 using Microsoft.Extensions.Configuration;

@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  web:
+    image: restapi
+    build:
+      context: egen-sol/
+      dockerfile: Dockerfile
+
+  api:
+    image: bulkapi
+    build:
+      context: bulk-order-api/
+      dockerfile: Dockerfile
