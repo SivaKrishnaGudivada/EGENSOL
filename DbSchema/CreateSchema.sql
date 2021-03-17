@@ -31,9 +31,6 @@ CREATE TABLE [dbo].[orders](
 	[id] [uniqueidentifier] PRIMARY KEY,
 	[status] [nvarchar](50) NOT NULL,
 	[customerid] [uniqueidentifier] NOT NULL,
-	[orderitemsid] [uniqueidentifier] NOT NULL,
-	[paymentinfoid] [uniqueidentifier] NOT NULL,
-	[shippingstatusid][uniqueidentifier] NOT NULL,
 	[subtotal] [smallmoney] NOT NULL,
 	[tax] [smallmoney] 	NOT NULL,
 	[shippingcharges] [smallmoney] 	NOT NULL,
@@ -52,21 +49,14 @@ CREATE TABLE [dbo].[payments](
 ) ON [PRIMARY]
 GO
 
-PRINT 'CREATING PAYMENTINFO'
-CREATE TABLE [dbo].[paymentinfo](
-	[id] [uniqueidentifier] PRIMARY KEY,
-	[customerid] [uniqueidentifier]  NOT NULL,
-	[orderid] [uniqueidentifier]  NOT NULL,
+ PRINT 'CREATING PENDING TRANSACTIONS'
+ CREATE TABLE [dbo].[pendingtransactions](
+ 	[id] [uniqueidentifier] PRIMARY KEY,
+	[customerid] [uniqueidentifier] NOT NULL,
+	[orderid] [uniqueidentifier] NOT NULL,
 	[paymentid] [uniqueidentifier] NOT NULL
-) ON [PRIMARY]
-GO
-
--- PRINT 'CREATING SHIPPING'
--- CREATE TABLE [dbo].[shipping](
--- 	[id] [uniqueidentifier] PRIMARY KEY,
-	
--- ) ON [PRIMARY]
--- GO
+ ) ON [PRIMARY]
+ GO
 
 PRINT 'CREATING ORDERSHIPPING'
 CREATE TABLE [dbo].[ordershippingstatus](
@@ -89,6 +79,6 @@ PRINT 'CREATING ORDEREDITEMS'
 CREATE TABLE [dbo].[ordereditems](
 	[id] [uniqueidentifier] PRIMARY KEY,
 	[orderid] [uniqueidentifier]  NOT NULL,
-	[itemid] [nvarchar](200),
+	[itemid] [uniqueidentifier]  NOT NULL,
 	[quantity] [int] NOT NULL
 ) ON [PRIMARY]

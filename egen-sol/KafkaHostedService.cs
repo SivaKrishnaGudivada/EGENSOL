@@ -23,6 +23,7 @@ namespace HostedServices
                 Seeds = port
             }, new ConsoleLogger());
         }
+        
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _client.ConsumeFromLatest(Constants.KafkaBulkOrderCreateTopicString);

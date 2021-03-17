@@ -40,10 +40,11 @@ namespace egen_sol.Controllers
             return BadRequest();
         }
 
-        [HttpPut("{id}")] // default route to post creates a resource
-        public IActionResult CancelOrder(Guid id)
+        [HttpPut("cancel/{id}")] // default route to post creates a resource
+        public async Task<IActionResult> CancelOrder(Guid id)
         {
-            if (_orderService.CancelOrder(id)) return NoContent();  
+            var updated = await _orderService.CancelOrder(id);
+            if (updated) return NoContent();
 
             return BadRequest();
         }

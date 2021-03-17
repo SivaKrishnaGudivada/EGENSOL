@@ -37,7 +37,7 @@ namespace Models
         public float ShippingCharges { get; set; }
         public float Total { get; set; }
 
-        public List<PaymentInfo> Payments { get; set; }
+        public List<OrderPaymentInfo> Payments { get; set; }
 
         public ShippingInfo ShippingInfo { get; set; }
 
@@ -53,6 +53,7 @@ namespace Models
 
     public class Item
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public float Price { get; set; }
         public int Quantity { get; set; }
@@ -61,17 +62,25 @@ namespace Models
 
     public class ShippingInfo
     {
+        public ShippingType ShippingType { get; set; }
         public string AddressLine1 { get; set; }
         public string AddressLine2 { get; set; }
         public string City { get; set; }
         public string State { get; set; }
         public string Zip { get; set; }
+
+        public override string ToString() => $"{AddressLine1}, {AddressLine2}, {City}, {State}, {Zip}";
     }
 
     public class PaymentInfo
     {
         public PaymentMethod PaymentMethod { get; set; }
         public object PInfo { get; set; }
+
+    }
+    public class OrderPaymentInfo
+    {
+        public PaymentInfo PaymentInfo { get; set; }
         public DateTime PaymentDate { get; set; }
     }
 
@@ -81,6 +90,14 @@ namespace Models
         Debit,
         PayPal,
         Echeck
+    }
+
+    public enum ShippingType
+    {
+        InStore,
+        Curb,
+        Home,
+        ThirdParty
     }
 
     public class DebitCardPayment : IPayment
@@ -150,6 +167,13 @@ namespace Models
             if (Left == null && Right != null) return ifRight(Right);
             if (Right == null && Left != null) return ifLeft(Left);
             return default(T);
+        }
+
+        public bool IsRight => Right != null;
+
+        public void IfRight(Action<Success> onRight) 
+        {
+            if(IsRight) onRight(Right);
         }
     }
 }

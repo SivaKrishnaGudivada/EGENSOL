@@ -7,23 +7,23 @@ using System.Threading;
 
 public class KafkaPublisher : IKafkaPublisher
 {
-    private readonly IProducer<Null, object> _producer;
+    private readonly IProducer<Null, string> _producer;
     private readonly ILogger<KafkaPublisher> _logger;
     public KafkaPublisher(IConfiguration iconfig, ILogger<KafkaPublisher> logger)
     {
         _logger = logger;
         var port = iconfig.GetValue<string>("KafkaPort");
-        _producer = new ProducerBuilder<Null, object>(new ProducerConfig()
+        _producer = new ProducerBuilder<Null, string>(new ProducerConfig()
         {
             BootstrapServers = port
         }).Build();
     }
 
-    public async void Publish(string topic, object data)
+    public async void Publish(string topic, string data)
     {
         await _producer.ProduceAsync(
             topic,
-            new Message<Null, object>()
+            new Message<Null, string>()
             {
                 Value = data
             }, default(CancellationToken));

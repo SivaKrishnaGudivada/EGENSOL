@@ -2,6 +2,6 @@ namespace Common.Services
 {
     public interface IKafkaPublisher
     {
-        void Publish(string topic, object data);
+        void Publish(string topic, string data);
     }
 }

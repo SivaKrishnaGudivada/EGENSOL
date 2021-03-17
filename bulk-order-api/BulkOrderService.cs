@@ -5,6 +5,7 @@ using Common.DataAccess;
 using Common.Services;
 using Microsoft.Extensions.Logging;
 using Models;
+using Newtonsoft.Json;
 
 public interface IBulkOrderService
 {
@@ -32,9 +33,11 @@ public class BulkOrderService : IBulkOrderService
         {
             try
             {
-                var inserted = new Either<Exception, OrderCreated>(await _orderService.CreateOrder(item));
-                _publisher.Publish(Constants.KafkaBulkOrderCreateTopicString, inserted);
-                return inserted;
+                var maybeInserted = new Either<Exception, OrderCreated>(await _orderService.CreateOrder(item));
+                
+                maybeInserted.IfRight(orderCreated => _publisher.Publish(Constants.KafkaBulkOrderCreateTopicString, JsonConvert.SerializeObject(orderCreated)));
+
+                return maybeInserted;
             }
             catch (System.Exception ex)
             {
@@ -54,17 +57,17 @@ public class BulkOrderService : IBulkOrderService
        {
            try
            {
-               var updatedRows = await Task.Run(() =>
-                  _dataAccess
-                    .FromTable("ordershippingstatus")
-                    .Update(
-                        new 
-                        { 
-                            status = item.Status 
-                        }, 
-                        where: $"orderid = '{item.OrderId}'"));
+               var id = item.OrderId;
+               var status = item.Status;
+               var updateSqlQuery = $@"UPDATE [dbo].[orders] SET status = '{status}' WHERE id = '{id}'";
+               using (var conn = _dataAccess.FromTable("orders").OpenConnection())
+               {
+                   var cmd = conn.CreateCommand();
+                   cmd.CommandText = updateSqlQuery;
+                   var affectedRows = await cmd.ExecuteNonQueryAsync();
 
-               return new Either<Exception, bool>(updatedRows == 1);
+                   return new Either<Exception, bool>(affectedRows == 1);
+               }
            }
            catch (System.Exception ex)
            {
@@ -73,6 +76,6 @@ public class BulkOrderService : IBulkOrderService
            }
        }).ToArray();
 
-       return Task.WhenAll(updateTasks);
+        return Task.WhenAll(updateTasks);
     }
 }
