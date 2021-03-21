@@ -31,6 +31,10 @@ namespace bulk_order_api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLogging();
+
+            var loggerFactory = services.BuildServiceProvider().GetService<ILoggerFactory>();
+            
             services.AddControllers();
 
             services.AddSingleton<IConnectionStringProvider, AppSettingsBasedConfigurationProvider>();
@@ -38,7 +42,7 @@ namespace bulk_order_api
 
             services.AddSingleton<IOrderService, OrderService>();
             services.AddSingleton<IBulkOrderService, BulkOrderService>();
-            services.AddSingleton<IKafkaPublisher, KafkaPublisher>();
+            services.AddSingleton<ICreateOrderPublisher, CreateOrderKafkaPublisher>();
 
             services.AddSwaggerGen(c =>
            {

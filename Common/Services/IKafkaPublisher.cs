@@ -1,7 +1,9 @@
+using Models;
+
 namespace Common.Services
 {
-    public interface IKafkaPublisher
+    public interface ICreateOrderPublisher
     {
-        void Publish(string topic, string data);
+        void Publish(CreateOrder data);
     }
 }

@@ -15,7 +15,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Common.Services;
-using HostedServices;
 
 namespace egen_sol
 {
@@ -38,7 +37,7 @@ namespace egen_sol
 
             services.AddSingleton<IOrderService, OrderService>();
 
-            services.AddHostedService<KafkaConsumerHostedService>();
+            services.AddSingleton<ICreateOrderPublisher, CreateOrderKafkaPublisher>();
 
             services.AddSwaggerGen(c =>
            {

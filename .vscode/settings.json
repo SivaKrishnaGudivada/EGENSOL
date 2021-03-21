@@ -1,0 +1,6 @@
+{
+    "files.exclude": {
+        "**/Common": true,
+        "**/order-creation-service": true
+    }
+}

@@ -19,9 +19,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             "OS-COMMENT4": "If you have changed target frameworks, make sure to update the program path.",
-            "program": "${workspaceFolder}/bulk-order-api/bin/Debug/netcoreapp3.1/bulk-order-api.dll",
+            "program": "${workspaceFolder}/order-creation-service/bin/Debug/netcoreapp3.1/order-creation-service.exe",
             "args": [],
-            "cwd": "${workspaceFolder}/bulk-order-api",
+            "cwd": "${workspaceFolder}/order-creation-service",
             "stopAtEntry": false,
             "OS-COMMENT5": "Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser",
             "serverReadyAction": {

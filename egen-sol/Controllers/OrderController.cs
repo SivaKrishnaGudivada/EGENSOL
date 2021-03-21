@@ -13,11 +13,13 @@ namespace egen_sol.Controllers
     {
         private readonly ILogger<OrdersController> _logger;
         private readonly IOrderService _orderService;
+        private readonly ICreateOrderPublisher _publisher;
 
-        public OrdersController(ILogger<OrdersController> logger, IOrderService orderService)
+        public OrdersController(ILogger<OrdersController> logger, IOrderService orderService, ICreateOrderPublisher publisher)
         {
             _logger = logger;
             _orderService = orderService;
+            _publisher = publisher;
         }
 
         [HttpGet] // default route to get returns all the order objects
@@ -33,9 +35,14 @@ namespace egen_sol.Controllers
         {
             if (newOrder == null) return BadRequest();
 
-            var newOrderCreated = await _orderService.CreateOrder(newOrder);
+            var canAccept = await _orderService.CanAcceptOrder(newOrder);
 
-            if (newOrderCreated != null) return Ok(newOrderCreated);
+            if (canAccept) 
+            {
+                _logger.LogInformation("Can accept this order by cust: " + newOrder.CustomerId);
+                _publisher.Publish(newOrder);
+                return Accepted();
+            }
 
             return BadRequest();
         }
@@ -44,7 +51,11 @@ namespace egen_sol.Controllers
         public async Task<IActionResult> CancelOrder(Guid id)
         {
             var updated = await _orderService.CancelOrder(id);
-            if (updated) return NoContent();
+            if (updated) 
+            {
+                _logger.LogInformation("Order cancelled: "+id);
+                return NoContent();
+            }
 
             return BadRequest();
         }

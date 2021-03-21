@@ -7,13 +7,16 @@ RUN apt-get install -y nano
 RUN apt-get install iputils-ping
 RUN apt-get install net-tools
 
+COPY egen-sol/*.csproj ./egen-sol/
+COPY Common/*.csproj ./Common/
+
 COPY *.csproj ./
-RUN dotnet restore
+RUN dotnet restore ./egen-sol/egen-sol.csproj
 
 COPY . ./
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o out ./egen-sol/egen-sol.csproj
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app
 COPY --from=build-env /app/out .
-ENTRYPOINT ["dotnet", "bulk-order-api.dll"]
+ENTRYPOINT ["dotnet", "egen-sol.dll"]

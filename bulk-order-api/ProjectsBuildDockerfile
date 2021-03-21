@@ -7,11 +7,15 @@ RUN apt-get install -y nano
 RUN apt-get install iputils-ping
 RUN apt-get install net-tools
 
+
+COPY bulk-order-api/*.csproj ./bulk-order-api/
+COPY Common/*.csproj ./Common/
+
 COPY *.csproj ./
-RUN dotnet restore
+RUN dotnet restore ./bulk-order-api/bulk-order-api.csproj
 
 COPY . ./
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o out ./bulk-order-api/bulk-order-api.csproj
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app

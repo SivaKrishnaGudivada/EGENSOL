@@ -187,10 +187,15 @@ VALUES (
                 .Select<dynamic, OrderCreated>(x => OrderCreated.FromDynamic(x, _logger))
                 .ToList();
 
+        public Task<bool> CanAcceptOrder(CreateOrder order)
+        {
+            return Task.FromResult<bool>(true);// Stubbing out this method implementaion. The idea here is to check with some external Payment service to verify customer's payment details.
+        }
     }
 
     public interface IOrderService
     {
+        Task<bool> CanAcceptOrder(CreateOrder order);
         List<OrderCreated> GetOrders();
         OrderCreated GetOrderById(Guid id);
         Task<OrderCreated> CreateOrder(CreateOrder newOrder);

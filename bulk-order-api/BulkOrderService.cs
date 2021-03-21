@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 public interface IBulkOrderService
 {
-    Task<Either<Exception, OrderCreated>[]> BulkCreateOrders(CreateOrder[] newOrder);
+    Task<Either<Exception, bool>[]> BulkCreateOrders(CreateOrder[] newOrder);
     Task<Either<Exception, bool>[]> BulkUpdateOrders(UpdateOrderStatus[] orderUpdates);
 }
 
@@ -18,8 +18,8 @@ public class BulkOrderService : IBulkOrderService
     private readonly IMassiveOrmDataAccess _dataAccess;
     private readonly IOrderService _orderService;
     private readonly ILogger<BulkOrderService> _logger;
-    private readonly IKafkaPublisher _publisher;
-    public BulkOrderService(IMassiveOrmDataAccess dataAccess, IOrderService orderService, ILogger<BulkOrderService> logger, IKafkaPublisher publisher)
+    private readonly ICreateOrderPublisher _publisher;
+    public BulkOrderService(IMassiveOrmDataAccess dataAccess, IOrderService orderService, ILogger<BulkOrderService> logger, ICreateOrderPublisher publisher)
     {
         _dataAccess = dataAccess;
         _logger = logger;
@@ -27,23 +27,23 @@ public class BulkOrderService : IBulkOrderService
         _orderService = orderService;
     }
 
-    public async Task<Either<Exception, OrderCreated>[]> BulkCreateOrders(CreateOrder[] newOrders)
+    public async Task<Either<Exception, bool>[]> BulkCreateOrders(CreateOrder[] newOrders)
     {
         var inserts = newOrders.Select(async item =>
         {
             try
             {
-                var maybeInserted = new Either<Exception, OrderCreated>(await _orderService.CreateOrder(item));
-                
-                maybeInserted.IfRight(orderCreated => _publisher.Publish(Constants.KafkaBulkOrderCreateTopicString, JsonConvert.SerializeObject(orderCreated)));
+                var canAccept = await _orderService.CanAcceptOrder(item);
 
-                return maybeInserted;
+                if (canAccept) _publisher.Publish(item);
+
+                return new Either<Exception, bool>(canAccept);
             }
             catch (System.Exception ex)
             {
                 _logger.LogError(ex, "failed to create order");
 
-                return new Either<Exception, OrderCreated>(ex);
+                return new Either<Exception, bool>(ex);
             }
         })
         .ToList();
