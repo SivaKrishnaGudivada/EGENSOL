@@ -11,6 +11,7 @@ using Serilog;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Threading;
+using System.Data.Common;
 
 namespace order_creation_service
 {
@@ -18,6 +19,8 @@ namespace order_creation_service
    {
       public static void Main(string[] args)
       {
+            DbProviderFactories.RegisterFactory("System.Data.SqlClient", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
+
          Log.Logger = new LoggerConfiguration()
          .Enrich.FromLogContext()
          .WriteTo.File("order-creation-service.log")

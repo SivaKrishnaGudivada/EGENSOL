@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Models;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Confluent.Kafka.SyncOverAsync;
 
 namespace Common.Services
 {
@@ -19,7 +20,7 @@ namespace Common.Services
          {
             BootstrapServers = port
          })
-         .SetValueSerializer(new CustomCreateOrderAsyncSerializer())
+         .SetValueSerializer(new SyncOverAsyncSerializer<CreateOrder>(new  CustomCreateOrderAsyncSerializer()))
          .Build();
       }
 
@@ -32,9 +33,14 @@ namespace Common.Services
 
    public class CustomCreateOrderAsyncSerializer : IAsyncSerializer<CreateOrder>
    {
+      public byte[] Serialize(CreateOrder data, SerializationContext context)
+      {
+         return System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data));
+      }
+
       public async Task<byte[]> SerializeAsync(CreateOrder data, SerializationContext context)
       {
-         return await Task.Run(() => System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data)));
+         return await Task.Run(() => Serialize(data,context));
       }
    }
 }

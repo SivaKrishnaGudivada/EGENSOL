@@ -16,81 +16,38 @@ using Confluent.SchemaRegistry.Serdes;
 using Confluent.Kafka.SyncOverAsync;
 using Common.Services;
 using Confluent.SchemaRegistry;
+using Confluent.Kafka.Admin;
 
 namespace order_creation_service
 {
 
-   //public class KafkaProducerHostedService : IHostedService
-   //{
-   //   private readonly ILogger<KafkaProducerHostedService> _logger;
-   //   private readonly IProducer<Null, CreateOrder> _producer;
 
 
-   //   public KafkaProducerHostedService(ILogger<KafkaProducerHostedService> logger)
-   //   {
-
-   //      _logger = logger;
-   //      var config = new ProducerConfig()
-   //      {
-   //         BootstrapServers = "localhost:9092"
-   //      };
-
-   //      _producer = new ProducerBuilder<Null, CreateOrder>(config)
-   //      .SetValueSerializer(new Common.Services.CustomCreateOrderAsyncSerializer())
-   //      .Build();
-   //   }
-
-   //   public async Task StartAsync(CancellationToken cancellationToken)
-   //   {
-   //      for (var i = 0; i < 100; ++i)
-   //      {
-   //         var value = new CreateOrder();
-
-   //         try
-   //         {
-   //            await _producer.ProduceAsync(Constants.KafkaBulkOrderCreateTopicString, new Message<Null, CreateOrder>()
-   //            {
-   //               Value = value
-   //            }, cancellationToken);
-   //         }
-   //         catch (Exception ex)
-   //         {
-
-   //         }
-
-   //         await Task.Delay(1000 * 10);
-   //      }
-
-   //      _producer.Flush(TimeSpan.FromSeconds(10));
-   //   }
-
-   //   public Task StopAsync(CancellationToken cancellationToken)
-   //   {
-   //      _producer?.Dispose();
-   //      return Task.CompletedTask;
-   //   }
-   //}
+   
 
    public class KafkaConsumerHostedService : IHostedService
    {
       private readonly IOrderService _orderService;
       private readonly ILogger<KafkaConsumerHostedService> _logger;
       private readonly ClusterClient _cluster;
+      private readonly string _port;
 
       public KafkaConsumerHostedService(IConfiguration config, ILogger<KafkaConsumerHostedService> logger, IOrderService orderService)
       {
          _orderService = orderService;
          _logger = logger;
-         var port = config.GetValue<string>(Constants.ConfigurationKeys.KafkaPortKey);
+         _port = config.GetValue<string>(Constants.ConfigurationKeys.KafkaPortKey);
          _cluster = new ClusterClient(new Configuration
          {
-            Seeds = port
+            Seeds = _port
          }, new ConsoleLogger());
       }
 
-      public Task StartAsync(CancellationToken cancellationToken)
+      public async Task StartAsync(CancellationToken cancellationToken)
       {
          _logger.LogInformation("Starting ...");
+
+         await CreateTopic();
 
          _cluster.ConsumeFromLatest(Constants.KafkaBulkOrderCreateTopicString);
 
@@ -100,6 +57,9 @@ namespace order_creation_service
             try
             {
                var createOrder = JsonConvert.DeserializeObject<CreateOrder>(System.Text.Encoding.UTF8.GetString(record.Value as byte[]));
+               
+
+
                InsertOrderRecord(createOrder);
             }
             catch (Exception ex)
@@ -109,11 +69,39 @@ namespace order_creation_service
          };
 
          _logger.LogInformation("Started");
-         return Task.CompletedTask;
+         
       }
 
-      private void InsertOrderRecord(CreateOrder createOrder) =>
-         _orderService.CreateOrder(createOrder);
+      private async Task CreateTopic()
+      {
+         _logger.LogInformation("creating topic to listen to..");
+            using (var adminClient = new AdminClientBuilder(new AdminClientConfig { BootstrapServers = _port}).Build())
+        {
+            try
+            {
+                await adminClient.CreateTopicsAsync(new TopicSpecification[] { 
+                    new TopicSpecification { Name = Constants.KafkaBulkOrderCreateTopicString, ReplicationFactor = 1, NumPartitions = 1 } });
+            }
+            catch (CreateTopicsException e)
+            {
+                Console.WriteLine($"An error occured creating topic {e.Results[0].Topic}: {e.Results[0].Error.Reason}");
+            }
+        }
+            _logger.LogInformation("Topic created!");
+      }
+
+      private async void InsertOrderRecord(CreateOrder createOrder) 
+      {
+         try
+         {
+            await _orderService.CreateOrder(createOrder);
+         }
+         catch (System.Exception ex)
+         {
+            _logger.LogError("failed to create order: "+ex.Message, ex);
+         }
+      }
+         
 
       public Task StopAsync(CancellationToken cancellationToken)
       {
