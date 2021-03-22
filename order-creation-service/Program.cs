@@ -49,7 +49,7 @@ namespace order_creation_service
           .ConfigureServices((hostContext, services) =>
           {
              services.AddHostedService<KafkaConsumerHostedService>();
-             //services.AddHostedService<KafkaProducerHostedService>(); // debugging locally!
+             
              services.AddSingleton<IConnectionStringProvider, AppSettingsBasedConfigurationProvider>();
              services.AddSingleton<IMassiveOrmDataAccess, MassiveOrmDataAccess>();
 

@@ -4,24 +4,26 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>bulk_order_api</RootNamespace>
   </PropertyGroup>
-<ItemGroup>
-        <PackageReference Include="Confluent.Kafka" Version="1.6.2" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.1" />
-         <PackageReference Include="Serilog.AspNetCore" Version="4.0.0" />
-          <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.0" />
-          <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-          <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
-</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    
+    <PackageReference Include="Confluent.Kafka" Version="1.6.2" />
+    
+    <PackageReference Include="Serilog.AspNetCore" Version="4.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
 
   <!-- <ItemGroup>
     <ProjectReference Include = "../Common/Common.csproj" />
     <PackageReference Include="Massive.SqlServer" Version="1.0.0" />
 </ItemGroup> -->
 
-<ItemGroup>
+  <ItemGroup>
     <Reference Include = "lib/Common.dll" />
     <Reference Include = "lib/Massive.SqlServer.dll" />
-</ItemGroup>
+  </ItemGroup>
 </Project>

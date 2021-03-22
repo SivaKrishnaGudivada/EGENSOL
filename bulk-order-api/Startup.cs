@@ -44,10 +44,7 @@ namespace bulk_order_api
             services.AddSingleton<IBulkOrderService, BulkOrderService>();
             services.AddSingleton<ICreateOrderPublisher, CreateOrderKafkaPublisher>();
 
-            services.AddSwaggerGen(c =>
-           {
-               c.SwaggerDoc("v1", new OpenApiInfo { Title = "Values Api", Version = "v1" });
-           });
+            services.AddSwaggerGen(c =>c.SwaggerDoc("v1", new OpenApiInfo { Title = "Values Api", Version = "v1" }));
 
             DbProviderFactories.RegisterFactory("System.Data.SqlClient", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
 

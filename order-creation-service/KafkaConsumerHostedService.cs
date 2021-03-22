@@ -20,11 +20,6 @@ using Confluent.Kafka.Admin;
 
 namespace order_creation_service
 {
-
-
-
-   
-
    public class KafkaConsumerHostedService : IHostedService
    {
       private readonly IOrderService _orderService;
@@ -57,9 +52,6 @@ namespace order_creation_service
             try
             {
                var createOrder = JsonConvert.DeserializeObject<CreateOrder>(System.Text.Encoding.UTF8.GetString(record.Value as byte[]));
-               
-
-
                InsertOrderRecord(createOrder);
             }
             catch (Exception ex)
@@ -102,7 +94,6 @@ namespace order_creation_service
          }
       }
          
-
       public Task StopAsync(CancellationToken cancellationToken)
       {
          _cluster?.Dispose();
