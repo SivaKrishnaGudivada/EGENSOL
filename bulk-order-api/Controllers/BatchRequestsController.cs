@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Common.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -30,8 +31,8 @@ namespace bulk_order_api.Controllers
             var res = (await _bulkOrderService.BulkCreateOrders(req.Items.ToArray()))
                 .Select(res =>
                     res.Match(
-                        ifLeft: err => new BulkCreateResponse(err),
-                        ifRight: succ => new BulkCreateResponse(succ)))
+                        ifLeft: err => new BulkRequestResponse(err),
+                        ifRight: succ => new BulkRequestResponse(succ,(int)(succ ? HttpStatusCode.Accepted : HttpStatusCode.UnprocessableEntity))))
                         .ToList();
             return Ok(res);
         }
@@ -44,8 +45,8 @@ namespace bulk_order_api.Controllers
             var res = (await _bulkOrderService.BulkUpdateOrders(req.Items.ToArray()))
                 .Select(res =>
                     res.Match(
-                        ifLeft: err => new BulkCreateResponse(err),
-                        ifRight: succ => new BulkCreateResponse(succ)))
+                        ifLeft: err => new BulkRequestResponse(err),
+                        ifRight: succ => new BulkRequestResponse(succ, (int)(succ ? HttpStatusCode.Accepted : HttpStatusCode.UnprocessableEntity))))
                         .ToList();
             return Ok(res);
         }

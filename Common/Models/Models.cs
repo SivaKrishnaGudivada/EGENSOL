@@ -130,20 +130,20 @@ namespace Models
         public List<UpdateOrderStatus> Items { get; set; }
     }
 
-    public class BulkCreateResponse
+    public class BulkRequestResponse
     {
         public object Data { get; set; }
         public int StatusCode { get; set; }
         public string ErrorMsg { get; set; }
-        public BulkCreateResponse(Exception ex)
+        public BulkRequestResponse(Exception ex)
         {
             ErrorMsg = ex.Message;
             StatusCode = 500;
         }
-        public BulkCreateResponse(object data)
+        public BulkRequestResponse(object data, int statusCode)
         {
             Data = data;
-            StatusCode = 201;
+            StatusCode = statusCode;
         }
     }
 

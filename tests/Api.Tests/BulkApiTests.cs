@@ -6,6 +6,9 @@ using bulk_order_api.Controllers;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 
 namespace Api.Tests
 {
@@ -96,5 +99,43 @@ namespace Api.Tests
             Assert.IsType<OkObjectResult>(res);
             mock.MockBulkOrderService.Verify(x => x.BulkUpdateOrders(It.IsAny<UpdateOrderStatus[]>()), Times.Once());
         }
+
+        [Fact]
+        public async void create_bulk_order_returns_appropriate_status_codes_for_individual_requests()
+        {
+            var mock = new Mocker();
+            var sut = mock.Build();
+
+            mock.MockBulkOrderService
+                .Setup(x => x.BulkCreateOrders(It.IsAny<CreateOrder[]>()))
+                .ReturnsAsync(new List<Either<Exception, bool>>()
+                {
+                    new Either<Exception, bool>(true), // true indicates we accepted, otherwise we rejected to accept this request for further processing.
+                    new Either<Exception, bool>(false),
+                }.ToArray());
+
+            var res = await sut.CreateBulkOrders(new BulkCreateRequest()
+            {
+                Items = new System.Collections.Generic.List<CreateOrder>()
+                {
+                    new CreateOrder()
+                    {
+
+                    },
+                    new CreateOrder()
+                    {
+
+                    }
+                }
+            });
+            Assert.IsType<OkObjectResult>(res);
+
+            mock.MockBulkOrderService.Verify(x => x.BulkCreateOrders(It.IsAny<CreateOrder[]>()), Times.Once());
+
+            var value = (res as OkObjectResult).Value as List<BulkRequestResponse>;
+            Assert.Equal((int)HttpStatusCode.Accepted, value.FirstOrDefault().StatusCode);
+            Assert.Equal((int)HttpStatusCode.UnprocessableEntity, value.LastOrDefault().StatusCode);
+        }
+
     }
 }
