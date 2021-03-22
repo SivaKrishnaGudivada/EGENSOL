@@ -1,7 +1,9 @@
 # EGENSOL
-git clone this repository
-run : docker compose up
-browse to http://localhost:3000/swagger for rest api and http://localhost:5000 for bulk order api
+## Running the application locally ##
 
-Run the following command to create the database schema that supports the applications:   
-docker exec mssql-server-db /bin/sh "/usr/src/app/entrypoint.sh"
+*Requires docker installed*
+
+1) git clone this repository
+2) Run: docker compose up in the base directory
+3) After the containers spin up, run :docker exec mssql-server-db /bin/sh "/usr/src/app/entrypoint.sh" to create the backing database schema for the applications
+4) Browse to http://localhost:3000/swagger for rest api and http://localhost:5000 for bulk order api 
