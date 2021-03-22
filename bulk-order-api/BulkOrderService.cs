@@ -29,6 +29,8 @@ public class BulkOrderService : IBulkOrderService
 
     public async Task<Either<Exception, bool>[]> BulkCreateOrders(CreateOrder[] newOrders)
     {
+        if (newOrders == null) throw new ArgumentNullException("newOrders");
+
         var inserts = newOrders.Select(async item =>
         {
             try
@@ -53,6 +55,7 @@ public class BulkOrderService : IBulkOrderService
 
     public Task<Either<Exception, bool>[]> BulkUpdateOrders(UpdateOrderStatus[] orderUpdates)
     {
+        if(orderUpdates == null) throw new ArgumentNullException("orderUpdates");
         var updateTasks = orderUpdates.Select(async item =>
        {
            try

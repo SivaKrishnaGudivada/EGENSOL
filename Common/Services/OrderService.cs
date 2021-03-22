@@ -21,18 +21,15 @@ namespace Common.Services
             _logger = logger;
         }
 
-        public async Task<bool> CancelOrder(Guid id)
+        public async Task CancelOrder(Guid id)
         {
             var updateSqlQuery = $@"UPDATE [dbo].[orders] SET status = 'Cancelled' WHERE id = '{id}'";
             using (var conn = _dataAccess.FromTable("orders").OpenConnection())
             {
                 var cmd = conn.CreateCommand();
                 cmd.CommandText = updateSqlQuery;
-                var affectedRows = await cmd.ExecuteNonQueryAsync();
-                if (affectedRows == 1) return true;
+                await cmd.ExecuteNonQueryAsync();
             }
-
-            return false;
         }
 
         public async Task<OrderCreated> CreateOrder(CreateOrder newOrder)
@@ -199,6 +196,6 @@ VALUES (
         List<OrderCreated> GetOrders();
         OrderCreated GetOrderById(Guid id);
         Task<OrderCreated> CreateOrder(CreateOrder newOrder);
-        Task<bool> CancelOrder(Guid id);
+        Task CancelOrder(Guid id);
     }
 }

@@ -25,6 +25,8 @@ namespace bulk_order_api.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateBulkOrders([FromBody] BulkCreateRequest req)
         {
+            if (req == null || req.Items == null) return BadRequest();
+
             var res = (await _bulkOrderService.BulkCreateOrders(req.Items.ToArray()))
                 .Select(res =>
                     res.Match(
@@ -37,6 +39,8 @@ namespace bulk_order_api.Controllers
         [HttpPost("update")]
         public async Task<IActionResult> UpdateBulkOrders([FromBody] BulkUpdateRequest req)
         {
+            if (req == null) return BadRequest();
+
             var res = (await _bulkOrderService.BulkUpdateOrders(req.Items.ToArray()))
                 .Select(res =>
                     res.Match(

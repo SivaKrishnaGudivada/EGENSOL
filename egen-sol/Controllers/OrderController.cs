@@ -37,27 +37,22 @@ namespace egen_sol.Controllers
 
             var canAccept = await _orderService.CanAcceptOrder(newOrder);
 
-            if (canAccept) 
+            if (canAccept)
             {
                 _logger.LogInformation("Can accept this order by cust: " + newOrder.CustomerId);
                 _publisher.Publish(newOrder);
                 return Accepted();
             }
 
-            return BadRequest();
+            return UnprocessableEntity();
         }
 
         [HttpPut("cancel/{id}")] // default route to post creates a resource
         public async Task<IActionResult> CancelOrder(Guid id)
         {
-            var updated = await _orderService.CancelOrder(id);
-            if (updated) 
-            {
-                _logger.LogInformation("Order cancelled: "+id);
-                return NoContent();
-            }
-
-            return BadRequest();
+            await _orderService.CancelOrder(id);
+            _logger.LogInformation("Order cancelled: " + id);
+            return NoContent();
         }
     }
 }
